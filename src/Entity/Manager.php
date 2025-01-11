@@ -12,6 +12,9 @@ class Manager extends Employee
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $highestLicense = null;
 
+    #[ORM\OneToOne(inversedBy: 'manager', cascade: ['persist', 'remove'])]
+    private ?Club $club = null;
+
     public function getHighestLicense(): ?string
     {
         return $this->highestLicense;
@@ -20,6 +23,18 @@ class Manager extends Employee
     public function setHighestLicense(?string $highestLicense): static
     {
         $this->highestLicense = $highestLicense;
+
+        return $this;
+    }
+
+    public function getClub(): ?Club
+    {
+        return $this->club;
+    }
+
+    public function setClub(?Club $club): static
+    {
+        $this->club = $club;
 
         return $this;
     }

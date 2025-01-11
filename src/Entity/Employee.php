@@ -29,8 +29,9 @@ class Employee
     #[ORM\Column(type: Types::DECIMAL, precision: 11, scale: 2, nullable: true)]
     private ?string $salary = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $club = null;
+    #[ORM\ManyToOne(inversedBy: 'workforce')]
+    private ?Club $currentClub = null;
+
 
     public function getId(): ?int
     {
@@ -73,14 +74,14 @@ class Employee
         return $this;
     }
 
-    public function getClub(): ?string
+    public function getCurrentClub(): ?Club
     {
-        return $this->club;
+        return $this->currentClub;
     }
 
-    public function setClub(?string $club): static
+    public function setCurrentClub(?Club $currentClub): static
     {
-        $this->club = $club;
+        $this->currentClub = $currentClub;
 
         return $this;
     }
