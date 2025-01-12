@@ -38,6 +38,17 @@ class ClubController extends AbstractController
         return $this->json($club);
     }
 
+    /**
+     * Retrieves a list of players from a specific club.
+     *
+     * @param int $offset The starting point for the list of players.
+     * @param int $limit The maximum number of players to retrieve.
+     * @param int $id The ID of the club.
+     *
+     * @return Response A JSON response containing the list of players.
+     *
+     * @Route("/{id}/players")
+     */
     #[Route('/{id}/players')]
     public function getPlayers(
         #[MapQueryParameter] int $offset,
@@ -51,6 +62,15 @@ class ClubController extends AbstractController
     }
 
 
+    /**
+     * Creates a new Club entity from a JSON request.
+     *
+     * @param Request $request The HTTP request object.
+     *
+     * @return Response The HTTP response object containing the created Club entity in JSON format.
+     *
+     * @throws BadRequestException If the content format is not JSON.
+     */
     #[Route('', methods: ['POST'])]
     public function create(Request $request): Response
     {
@@ -68,6 +88,18 @@ class ClubController extends AbstractController
         return $this->json($club);
     }
 
+    /**
+     * Updates the club entity with the given ID.
+     *
+     * @Route("/{id}", methods={"PUT"})
+     *
+     * @param int $id The ID of the club to update.
+     * @param Request $request The HTTP request object.
+     *
+     * @return Response The HTTP response object.
+     *
+     * @throws BadRequestException If the content format is not JSON.
+     */
     #[Route('/{id}', methods: ['PUT'])]
     public function update(int $id, Request $request): Response
     {
@@ -91,6 +123,24 @@ class ClubController extends AbstractController
         return $this->json($entity);
     }
 
+    /**
+     * Updates the budget of a club.
+     *
+     * @Route("/updateBudget", methods={"POST"})
+     *
+     * @param Request $request The HTTP request object.
+     *
+     * @return Response The HTTP response object.
+     *
+     * @throws BadRequestException If the content format is not JSON.
+     *
+     * This method expects a JSON payload containing the budget update information.
+     * It deserializes the JSON into a BudgetUpdateDto object, finds the club by ID,
+     * and updates the club's budget if the new budget is greater than the total workforce salary.
+     * If the club is not found, it returns a 404 error response.
+     * If the new budget is less than the total workforce salary, it returns a 400 error response.
+     * Otherwise, it updates the budget and returns the updated club entity as a JSON response.
+     */
     #[Route('/updateBudget', methods: ['POST'])]
     public function updateBudget(Request $request): Response
     {
