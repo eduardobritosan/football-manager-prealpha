@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Player;
-use App\Repository\PlayerRepository;
+use App\Entity\Manager;
+use App\Repository\ManagerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,12 +12,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
-#[Route('api/player')]
-final class PlayerController extends AbstractController
+#[Route('api/manager')]
+final class ManagerController extends AbstractController
 {
 
     public function __construct(
-        private readonly PlayerRepository  $players,
+        private readonly ManagerRepository  $managers,
         private readonly EntityManagerInterface $objectManager,
         private readonly SerializerInterface $serializer
     ) {}
@@ -26,14 +26,14 @@ final class PlayerController extends AbstractController
     public function getAll(): Response
     {
 
-        $club = $this->players->findAll();
+        $club = $this->managers->findAll();
 
         return $this->json($club);
     }
 
 
-    #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request): Response
+    #[Route('', name: 'createManager', methods: ['POST'])]
+    public function createManager(Request $request): Response
     {
         if ('json' !== $request->getContentTypeFormat()) {
             throw new BadRequestException('Unsupported content format');
@@ -41,15 +41,15 @@ final class PlayerController extends AbstractController
 
         $jsonData = $request->getContent();
 
-        $player = $this->serializer->deserialize($jsonData, Player::class, 'json');
+        $manager = $this->serializer->deserialize($jsonData, Manager::class, 'json');
 
-        if (!is_null($player->getCurrentClub())) {
-            throw new BadRequestException('Unsupported behaviour: please add player without a club and then sign them up through the /api/club/signPlayer');
+        if (!is_null($manager->getCurrentClub())) {
+            throw new BadRequestException('Unsupported behaviour: please add manager without a club and then sign them up through the /api/club/signManager');
         }
 
-        $this->objectManager->persist($player);
+        $this->objectManager->persist($manager);
         $this->objectManager->flush();
 
-        return $this->json($player);
+        return $this->json($manager);
     }
 }

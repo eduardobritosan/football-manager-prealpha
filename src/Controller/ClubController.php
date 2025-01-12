@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use App\Repository\ClubRepository;
 use App\Repository\PlayerRepository;
+use App\Repository\ManagerRepository;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -20,6 +21,7 @@ class ClubController extends AbstractController
     public function __construct(
         private readonly ClubRepository  $clubs,
         private readonly PlayerRepository  $players,
+        private readonly ManagerRepository  $managers,
         private readonly EntityManagerInterface $objectManager,
         private readonly SerializerInterface $serializer
     ) {}
@@ -157,14 +159,15 @@ class ClubController extends AbstractController
 
         $SignEmployeeDto = $this->serializer->deserialize($jsonData, SignEmployeeDto::class, 'json');
 
-        $player = $this->players->findOneBy(["nif" => $SignEmployeeDto->getPlayerNif()]);
+        $manager = $this->managers->findOneBy(["nif" => $SignEmployeeDto->getPlayerNif()]);
+
         $club = $this->clubs->findOneBy(["id" => $SignEmployeeDto->getClubId()]);
 
-        if (!$club or !$player) {
-            return $this->json(["error" => "Couldn't find either club, player or both"], 404);
+        if (!$club or !$manager) {
+            return $this->json(["error" => "Couldn't find either club, manager or both"], 404);
         }
 
-        $result = $this->clubs->signEmployee($SignEmployeeDto, $player, $club);
+        $result = $this->clubs->signEmployee($SignEmployeeDto, $manager, $club);
         return $this->json($result);
     }
 
@@ -180,14 +183,14 @@ class ClubController extends AbstractController
 
         $SignEmployeeDto = $this->serializer->deserialize($jsonData, SignEmployeeDto::class, 'json');
 
-        $player = $this->players->findOneBy(["nif" => $SignEmployeeDto->getPlayerNif()]);
+        $manager = $this->managers->findOneBy(["nif" => $SignEmployeeDto->getPlayerNif()]);
         $club = $this->clubs->findOneBy(["id" => $SignEmployeeDto->getClubId()]);
 
-        if (!$club or !$player) {
-            return $this->json(["error" => "Couldn't find either club, player or both"], 404);
+        if (!$club or !$manager) {
+            return $this->json(["error" => "Couldn't find either club, manager or both"], 404);
         }
 
-        $result = $this->clubs->releaseEmployee($SignEmployeeDto, $player, $club);
+        $result = $this->clubs->releaseEmployee($SignEmployeeDto, $manager, $club);
         return $this->json($result);
     }
 }

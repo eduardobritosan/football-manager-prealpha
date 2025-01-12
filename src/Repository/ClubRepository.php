@@ -34,7 +34,8 @@ class ClubRepository extends ServiceEntityRepository
 
     public function signEmployee(SignEmployeeDto $dto, Employee $employee, Club $club)
     {
-        if ($employee instanceof Manager and $club->getManager()) {
+        $isManager = $employee instanceof Manager;
+        if ($isManager and $club->getManager()) {
             return SignEmployeeResponseDto::of("This club already has a manager.");
         }
         $totalEmployeeSalary = $this->getAvailableBudget($club->getId());
@@ -43,6 +44,7 @@ class ClubRepository extends ServiceEntityRepository
             !$club->getWorkforce()->contains($employee)
         ) {
             $club->getWorkforce()->add($employee);
+            if ($isManager) $club->setManager($employee);
             $employee->setCurrentClub($club);
             $employee->setSalary(($dto->getSalary()));
             $this->saveChangesClubEmployee($club, $employee);
