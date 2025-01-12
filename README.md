@@ -8,6 +8,11 @@ Install sqlite
 scoop install sqlite   
 ```
 
+Run composer install
+```
+composer install
+```
+
 Run the application
 
 ```
