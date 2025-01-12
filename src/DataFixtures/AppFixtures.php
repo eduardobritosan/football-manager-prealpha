@@ -10,9 +10,6 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-
         $club = new Club;
         $club->setName("Club Deportivo Tenerife");
         $club->setBudget("2000000.00");
