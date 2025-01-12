@@ -65,6 +65,16 @@ class ClubRepository extends ServiceEntityRepository
         return SignEmployeeResponseDto::of("Issues with release");
     }
 
+    public function getTotalWorkforceSalary(int $id)
+    {
+        $club = $this->findOneBy(['id' => $id]);
+        $totalEmployeeSalary = 0;
+        foreach ($club->getWorkforce() as $employee) {
+            $totalEmployeeSalary += $employee->getSalary();
+        }
+        return (float)$totalEmployeeSalary;
+    }
+
     private function saveChangesClubEmployee(Club $club, Employee $employee)
     {
         $this->objectManager->persist($club);

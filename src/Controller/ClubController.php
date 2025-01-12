@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\BudgetUpdateDto;
 use App\Dto\SignEmployeeDto;
 use App\Entity\Club;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,6 +15,7 @@ use App\Repository\PlayerRepository;
 use App\Repository\ManagerRepository;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 #[Route('api/club')]
 class ClubController extends AbstractController
@@ -28,12 +30,24 @@ class ClubController extends AbstractController
 
 
     #[Route('', methods: ['GET'])]
-    public function getClub(): Response
+    public function get(): Response
     {
 
         $club = $this->clubs->findAll();
 
         return $this->json($club);
+    }
+
+    #[Route('/{id}/players')]
+    public function getPlayers(
+        #[MapQueryParameter] int $offset,
+        #[MapQueryParameter] int $limit,
+        int $id
+    ): Response {
+
+        $players = $this->players->getPlayersFromClub($limit, $offset, $id);
+
+        return $this->json($players);
     }
 
 
@@ -77,26 +91,28 @@ class ClubController extends AbstractController
         return $this->json($entity);
     }
 
-    #[Route('/budget/{id}', methods: ['PUT'])]
-    public function budgetUpdate(int $id, Request $request): Response
+    #[Route('/updateBudget', methods: ['POST'])]
+    public function updateBudget(Request $request): Response
     {
         if ('json' !== $request->getContentTypeFormat()) {
             throw new BadRequestException('Unsupported content format');
         }
 
-        $entity = $this->clubs->findOneBy(["id" => $id]);
-        if (!$entity) {
-            return $this->json(["error" => "Club was not found by id:" . $id], 404);
-        }
-
         $jsonData = $request->getContent();
 
-        $club = $this->serializer->deserialize($jsonData, Club::class, 'json');
+        $budgetUpdateDto = $this->serializer->deserialize($jsonData, BudgetUpdateDto::class, 'json');
 
-        $entity->setName($club->getName())->setBudget($club->getBudget());
+        $entity = $this->clubs->findOneBy(["id" => $budgetUpdateDto->getClubId()]);
+        if (!$entity) {
+            return $this->json(["error" => "Club was not found by id:" . $budgetUpdateDto->getClubId()], 404);
+        }
 
-        $this->objectManager->flush();
-
+        if ($this->clubs->getTotalWorkforceSalary($budgetUpdateDto->getClubId()) < $budgetUpdateDto->getBudget()) {
+            $entity->setBudget($budgetUpdateDto->getBudget());
+            $this->objectManager->flush();
+        } else {
+            return $this->json(["error" => "Budget under total workforce value"], 400);
+        }
         return $this->json($entity);
     }
 
