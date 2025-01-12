@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ManagerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: ManagerRepository::class)]
 class Manager extends Employee
@@ -13,6 +14,7 @@ class Manager extends Employee
     private ?string $highestLicense = null;
 
     #[ORM\OneToOne(inversedBy: 'manager', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private ?Club $club = null;
 
     public function getHighestLicense(): ?string

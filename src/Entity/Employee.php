@@ -6,6 +6,8 @@ use App\Repository\EmployeeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 #[ORM\InheritanceType("JOINED")]
@@ -13,10 +15,6 @@ use Doctrine\ORM\Mapping\DiscriminatorMap;
 #[ORM\DiscriminatorMap(["player" => Player::class, "manager" => Manager::class])]
 class Employee
 {
-
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 9)]
     #[ORM\Id]
@@ -30,13 +28,8 @@ class Employee
     private ?string $salary = null;
 
     #[ORM\ManyToOne(inversedBy: 'workforce')]
+    #[Ignore]
     private ?Club $currentClub = null;
-
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getNif(): ?string
     {

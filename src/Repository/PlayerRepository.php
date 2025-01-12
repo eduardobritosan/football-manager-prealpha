@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Player;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,28 +17,14 @@ class PlayerRepository extends ServiceEntityRepository
         parent::__construct($registry, Player::class);
     }
 
-    //    /**
-    //     * @return Player[] Returns an array of Player objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Player
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function getPlayersFromClub(int $limit, int $offset, int $clubId)
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->andWhere('p.currentClub = :clubId')
+            ->setParameter('clubId', $clubId)
+            ->getQuery()->setFirstResult($offset)
+            ->setMaxResults($limit);
+        $paginator = new Paginator($qb);
+        return ['total' => count($paginator), 'items' => $paginator];
+    }
 }
